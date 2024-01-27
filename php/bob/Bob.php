@@ -2,61 +2,34 @@
 
 class Bob {
     private string $expresionIsQuestion;
-    private array $splitedExpresion;
+    private string $expresionWasYelled;
 
     public function respondTo(string $expresion) : string {
-        $this->splitedExpresion = mb_str_split(trim($expresion));
-        $expresion = $this->removeUnprintableChars($expresion);
+        $expresion = trim($expresion);
+        $this->expresionIsQuestion = str_ends_with($expresion, '?');
+        $this->expresionWasYelled = $this->isYelling($expresion);
+        $expresion = preg_replace('/[[:^print:]]/', '', $expresion);
         
         if (mb_strlen($expresion) === 0) {
             return "Fine. Be that way!";
         }
 
-        $this->expresionIsQuestion = end($this->splitedExpresion) === '?';
-
-        if ($this->expresionIsQuestion && !$this->isYelling()) {
+        if ($this->expresionIsQuestion && !$this->expresionWasYelled) {
             return "Sure.";
         }
 
-        if (!$this->expresionIsQuestion && $this->isYelling()) {
+        if (!$this->expresionIsQuestion && $this->expresionWasYelled) {
             return "Whoa, chill out!";
         }
         
-        if ($this->expresionIsQuestion && $this->isYelling()) {
+        if ($this->expresionIsQuestion && $this->expresionWasYelled) {
             return "Calm down, I know what I'm doing!";
         }
 
         return "Whatever.";
     }
 
-    private function removeUnprintableChars() : string
-    {
-        $result = "";
-        $excludedCharacters = ["\u{000b}", "\u{00a0}", "\u{2002}"];
-
-        foreach ($this->splitedExpresion as $char) {
-            if (mb_ord($char) < 32 || in_array($char, $excludedCharacters)) {
-                continue;
-            }
-            $result .= $char;
-        }
-        return $result;
-    }
-
-    private function isYelling() : bool {
-        $upperCaseChars = 0;
-        foreach ($this->splitedExpresion as $char) {
-            $isAlpha = preg_match('/^\p{L}+$/u', $char);
-            
-            if($isAlpha) {
-                $isLowercase = mb_strtolower($char, 'UTF-8') === $char;
-                if ($isLowercase) {
-                    return false;
-                }
-                $upperCaseChars++;
-            }
-        }
-
-        return $upperCaseChars > 0;
+    private function isYelling(string $expresion) : bool {
+        return preg_match('/^[A-ZÄÖÜ]+$/u', preg_replace('/[^A-Za-zÄÖÜäöü]/u', '', $expresion));
     }
 }
