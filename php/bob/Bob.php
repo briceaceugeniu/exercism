@@ -1,35 +1,21 @@
 <?php
 
 class Bob {
-    private string $expresionIsQuestion;
-    private string $expresionWasYelled;
-
     public function respondTo(string $expresion) : string {
         $expresion = trim($expresion);
-        $this->expresionIsQuestion = str_ends_with($expresion, '?');
-        $this->expresionWasYelled = $this->isYelling($expresion);
-        $expresion = preg_replace('/[[:^print:]]/', '', $expresion);
-        
-        if (mb_strlen($expresion) === 0) {
-            return "Fine. Be that way!";
-        }
+        $expresionIsQuestion = str_ends_with($expresion, '?');
+        $expresionWasYelled = $this->isYelling($expresion);
 
-        if ($this->expresionIsQuestion && !$this->expresionWasYelled) {
-            return "Sure.";
-        }
-
-        if (!$this->expresionIsQuestion && $this->expresionWasYelled) {
-            return "Whoa, chill out!";
-        }
-        
-        if ($this->expresionIsQuestion && $this->expresionWasYelled) {
-            return "Calm down, I know what I'm doing!";
-        }
-
-        return "Whatever.";
+        return match (true) {
+            (mb_strlen(preg_replace('/[[:^print:]]/', '', $expresion)) === 0) => "Fine. Be that way!",
+            $expresionIsQuestion && !$expresionWasYelled => "Sure.",
+            !$expresionIsQuestion && $expresionWasYelled => "Whoa, chill out!",
+            $expresionIsQuestion && $expresionWasYelled => "Calm down, I know what I'm doing!",
+            default => "Whatever.",
+        };
     }
 
     private function isYelling(string $expresion) : bool {
-        return preg_match('/^[A-ZÄÖÜ]+$/u', preg_replace('/[^A-Za-zÄÖÜäöü]/u', '', $expresion));
+        return preg_match('/^\p{Lu}+$/u', preg_replace('/[^\p{Lu}\p{L}]/u', '', $expresion));
     }
 }
