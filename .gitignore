@@ -9,3 +9,5 @@ exercism.sln
 exercism.sln.DotSettings.user
 
 **/bin
+**/obj
+**/.editorconfig
