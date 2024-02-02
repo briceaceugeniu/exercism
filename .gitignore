@@ -1,3 +1,9 @@
 **/.exercism/
 
 php/.phpunit.result.cache
+
+.vs
+
+exercism.sln
+
+exercism.sln.DotSettings.user
